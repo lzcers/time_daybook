@@ -34,7 +34,7 @@ pub fn pause_task(state: tauri::State<AppState>, id: u32) -> bool {
 #[tauri::command]
 pub fn get_task_elapsed(state: tauri::State<AppState>, id: u32) -> Option<u128> {
     if let Ok(mut t) = state.time_friend.lock() {
-        let clocker_elapsed = t.get_clocker_elapsed();
+        let clocker_elapsed = t.get_clocker_elapsed(id);
         let task_eplased = t.get_task(id).and_then(|t| Some(t.elapsed));
         if let (Some(ce), Some(te)) = (clocker_elapsed, task_eplased) {
             Some(ce + te)
@@ -58,7 +58,12 @@ pub fn delete_task(state: tauri::State<AppState>, id: u32) -> bool {
 
 #[tauri::command]
 pub fn delete_all_task(state: tauri::State<AppState>) -> bool {
-    panic!("no impl!")
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.delete_all_task();
+        true
+    } else {
+        false
+    }
 }
 
 #[tauri::command]
@@ -81,11 +86,21 @@ pub fn get_task_list(state: tauri::State<AppState>) -> Vec<Task> {
 }
 
 #[tauri::command]
-pub fn reset_task_time(state: tauri::State<AppState>, id: u64) -> bool {
-    panic!("no impl!")
+pub fn reset_task(state: tauri::State<AppState>, id: u32) -> bool {
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.reset_task(id);
+        true
+    } else {
+        false
+    }
 }
 
 #[tauri::command]
-pub fn reset_all_task_time(state: tauri::State<AppState>) -> bool {
-    panic!("no impl!")
+pub fn reset_all_task(state: tauri::State<AppState>) -> bool {
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.reset_all_task();
+        true
+    } else {
+        false
+    }
 }

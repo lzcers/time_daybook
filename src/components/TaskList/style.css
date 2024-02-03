@@ -33,11 +33,10 @@
     }
 
     .create span::before {
-        line-height: 24px;
-        height: 24px;
+        line-height: 26px;
+        height: 26px;
         font-size: 22px;
         position: relative;
-        transform: translateY(-8%);
         font-weight: lighter;
         margin-right: 0.25rem;
         content: "+";

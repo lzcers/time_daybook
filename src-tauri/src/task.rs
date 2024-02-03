@@ -1,11 +1,9 @@
-use std::f32::consts::E;
-
 use serde::{Deserialize, Serialize};
 
 use crate::utils::get_current_time;
 
-#[derive(Serialize, Deserialize, Clone)]
-pub enum TaskStaus {
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum TaskStatus {
     Ready,
     Processing,
     Done,
@@ -18,7 +16,7 @@ pub struct Task {
     pub create_time: u128,
     pub end_time: Option<u128>,
     pub elapsed: u128,
-    pub status: TaskStaus,
+    pub status: TaskStatus,
 }
 
 impl Task {
@@ -29,21 +27,25 @@ impl Task {
             create_time: get_current_time(),
             end_time: None,
             elapsed: 0,
-            status: TaskStaus::Ready,
+            status: TaskStatus::Ready,
         }
     }
 
     pub fn start(&mut self) {
-        self.status = TaskStaus::Processing;
+        self.status = TaskStatus::Processing;
     }
 
     pub fn add_elapsed(&mut self, elapsed: u128) {
         self.elapsed += elapsed;
     }
 
+    pub fn reset_elapsed(&mut self) {
+        self.elapsed = 0;
+    }
+
     pub fn done(&mut self) {
         self.end_time = Some(get_current_time());
-        self.status = TaskStaus::Done;
+        self.status = TaskStatus::Done;
     }
 }
 

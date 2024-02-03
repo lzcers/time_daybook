@@ -30,8 +30,8 @@ fn main() {
             update_task,
             get_task_event_list,
             get_task_list,
-            reset_task_time,
-            reset_all_task_time,
+            reset_task,
+            reset_all_task,
             get_task_elapsed,
         ])
         .run(tauri::generate_context!())
