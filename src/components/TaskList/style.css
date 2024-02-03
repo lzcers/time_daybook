@@ -1,0 +1,320 @@
+@charset "UTF-8";
+
+.task-list {
+    font-family: Helvetica, Tahoma, sans-serif;
+    font-size: 11px;
+    background: #fff;
+    overflow: auto;
+    width: 400px;
+    color: #000;
+}
+
+/* top bar
+----------------------------------------------------------------------------- */
+
+.task-top-bar {
+    padding: 0.5rem 0.75rem;
+    overflow: auto;
+    background: #f6f6f6;
+    border-bottom: 1px solid #e0e0e0;
+
+    .create {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+
+    .create span {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        color: black;
+        margin-right: 0.25rem;
+    }
+
+    .create span::before {
+        line-height: 24px;
+        height: 24px;
+        font-size: 22px;
+        position: relative;
+        transform: translateY(-8%);
+        font-weight: lighter;
+        margin-right: 0.25rem;
+        content: "+";
+    }
+
+    .export-all {
+        float: left;
+        margin-left: 5px;
+    }
+
+    .remove-all {
+        float: right !important;
+    }
+    .remove-all span {
+        display: block;
+        height: 24px;
+        width: 15px;
+        float: left;
+        margin-right: 0.25rem;
+        position: relative;
+    }
+
+    .remove-all span:before,
+    .remove-all span:after {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        margin: auto;
+        content: " ";
+        height: 14px;
+        width: 2px;
+        background-color: #dc3545;
+    }
+
+    .remove-all span:before {
+        transform: rotate(45deg);
+    }
+
+    .remove-all span:after {
+        transform: rotate(-45deg);
+    }
+
+    .reset-all {
+        float: right !important;
+        margin-left: 5px;
+    }
+}
+
+/* buttons
+----------------------------------------------------------------------------- */
+
+input[type="button"],
+input[type="submit"],
+.task-top-bar a.button {
+    color: #444;
+    text-decoration: none;
+    display: block;
+    padding: 0 0.25rem;
+    font-weight: bold;
+    line-height: 24px;
+    background-color: #fff;
+    border-radius: 2px;
+    float: left;
+    border: 1px solid #ddd;
+    position: relative;
+    cursor: pointer;
+}
+
+.task-top-bar a.button:active {
+    top: 1px;
+}
+
+input[type="button"]:hover,
+input[type="submit"]:hover,
+.task-top-bar .button:hover {
+    color: #555;
+}
+
+p.buttons {
+    padding: 1em !important;
+    overflow: hidden;
+}
+
+.cancel {
+    float: right !important;
+}
+
+.button-remove {
+    color: #a90329 !important;
+}
+
+/* forms and inputs
+----------------------------------------------------------------------------- */
+
+input[type="text"],
+textarea {
+    color: #000;
+    border: solid 1px #d6d6be;
+    background-color: #fcfff4;
+    padding: 0.25rem;
+    width: 100%;
+    font-size: 14px;
+    margin: 0 auto;
+    display: block;
+    resize: none;
+    outline: none;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    background-color: #fff;
+}
+
+.form {
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.form > div {
+    margin-bottom: 0.5rem;
+}
+
+.form-list label,
+.form label {
+    color: #000;
+    width: 100%;
+    display: block;
+    font-weight: bold;
+    text-align: left;
+    font-size: 14px;
+    margin-bottom: 0.1rem;
+}
+
+.form-list label.title,
+.form label.title {
+    margin-bottom: 0.2rem;
+}
+
+.form-list label small,
+.form label small {
+    font-size: 10px !important;
+}
+
+/* content
+----------------------------------------------------------------------------- */
+
+.content {
+    overflow: hidden;
+    text-align: center !important;
+}
+
+/* item
+----------------------------------------------------------------------------- */
+
+.form-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow-y: auto;
+    padding: 0.5rem;
+    .item-btn a {
+        margin-right: 3px;
+        cursor: pointer;
+    }
+}
+
+.form-list .item-container {
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.form-list .running .item-container {
+    background-color: #eaffd6;
+}
+
+.form-list .item {
+    text-align: left;
+    position: relative;
+    background: #fff;
+    display: block;
+    overflow: hidden;
+    padding: 0.25rem 0;
+}
+
+.form-list .item:not(:last-child) {
+    border-bottom: solid 1px #eee;
+}
+
+.form-list .item a.power {
+    display: block;
+    position: absolute;
+    right: 0.25rem;
+    margin: 0 auto;
+    top: 50%;
+    color: #000;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    border-color: transparent transparent transparent #616162;
+    transition: 100ms all ease;
+    cursor: pointer;
+}
+
+.form-list .item a.play:not(.running) {
+    border-style: solid;
+    border-width: 8px 0 8px 12px;
+}
+
+.form-list .item a.running {
+    border-style: double;
+    border-width: 0 0 0 12px;
+}
+
+.form-list .item span.timer {
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+}
+
+/* other elements
+----------------------------------------------------------------------------- */
+
+a.update:hover {
+    color: #006e2e;
+}
+
+a.remove:hover {
+    color: #a90329;
+}
+
+p.remove-confirm {
+    color: #a90329;
+    font-weight: bold;
+    line-height: 1.2em;
+    margin: 0;
+    padding: 1em 0 !important;
+    font-style: italic;
+    font-size: 13px;
+}
+
+p.remove-confirm strong {
+    color: #333;
+}
+
+/* footer
+----------------------------------------------------------------------------- */
+
+.footer {
+    background: #f6f6f6;
+    color: #bbb;
+    margin: 0;
+    padding: 5px;
+}
+
+.footer a {
+    color: #bbb;
+}
+
+.footer a:hover {
+    color: #333;
+}
+
+.footer span.total-time {
+    float: right;
+}
+
+/* error
+----------------------------------------------------------------------------- */
+.form-error {
+    background-color: #f8d7da;
+    margin: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+}
