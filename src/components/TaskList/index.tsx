@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { useList } from "@/context/list";
-import { Task } from "./task";
-import "./style.css";
+import Task from "./task";
+import plusIcon from "@/icons/plus.svg";
+import removeIcon from "@/icons/remove.svg";
 
-export function TaskList() {
+import { useList } from "@/context/list";
+import "./style.css";
+import { convertMillisecondsToDaysHours } from "@/context/utils";
+
+export default function TaskList() {
     const { taskList, updateList, createTask, resetAllTask, deleteAllTask } = useList();
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
@@ -17,10 +21,10 @@ export function TaskList() {
                     <label>Task name</label>
                     <input type="text" onChange={v => setTaskName(v.target.value)} className="text" required />
                 </div>
-                <div>
+                {/* <div>
                     <label>Project name</label>
                     <input type="text" name="task-project" className="text" />
-                </div>
+                </div> */}
                 <div className="buttons">
                     <input
                         type="button"
@@ -85,19 +89,20 @@ export function TaskList() {
     return (
         <div className="task-list">
             <div className="task-top-bar">
-                <a
-                    className="create button"
-                    onClick={() => {
-                        setShowCreateForm(v => !v);
-                    }}
-                >
-                    <span>New</span>
+                <a className="create button" onClick={() => setShowCreateForm(v => !v)}>
+                    <span>
+                        <img src={plusIcon} />
+                        New
+                    </span>
                 </a>
                 <a className="reset-all button" onClick={() => setShowResetAllDialog(v => !v)}>
                     <span>Reset All</span>
                 </a>
                 <a className="remove-all button" onClick={() => setShowDeleteAllDialog(v => !v)}>
-                    <span></span>Delete All
+                    <span>
+                        <img src={removeIcon} />
+                        Delete All
+                    </span>
                 </a>
                 <a className="export-all button">
                     <span>Export All</span>
@@ -116,7 +121,10 @@ export function TaskList() {
             <div className="footer">
                 <span className="version">Time Tracker V0.1</span>
                 <span className="total-time">
-                    Total: <span className="total-time-counter"></span>
+                    Total:
+                    <span className="total-time-counter">
+                        {convertMillisecondsToDaysHours(taskList.reduce((prev, cur) => prev + cur.elapsed, 0))}
+                    </span>
                 </span>
             </div>
         </div>

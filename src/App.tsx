@@ -1,7 +1,7 @@
-import { TaskList } from "./components/TaskList";
+import TaskList from "./components/TaskList";
 
 function App() {
-  return <TaskList></TaskList>;
+    return <TaskList></TaskList>;
 }
 
 export default App;

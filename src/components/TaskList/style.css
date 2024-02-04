@@ -17,29 +17,19 @@
     overflow: auto;
     background: #f6f6f6;
     border-bottom: 1px solid #e0e0e0;
-
+    span {
+        display: flex;
+        align-items: center;
+    }
+    img {
+        display: flex;
+        height: 12px;
+        margin-right: 3px;
+    }
     .create {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-    }
-
-    .create span {
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
-        color: black;
-        margin-right: 0.25rem;
-    }
-
-    .create span::before {
-        line-height: 26px;
-        height: 26px;
-        font-size: 22px;
-        position: relative;
-        font-weight: lighter;
-        margin-right: 0.25rem;
-        content: "+";
     }
 
     .export-all {
@@ -49,36 +39,6 @@
 
     .remove-all {
         float: right !important;
-    }
-    .remove-all span {
-        display: block;
-        height: 24px;
-        width: 15px;
-        float: left;
-        margin-right: 0.25rem;
-        position: relative;
-    }
-
-    .remove-all span:before,
-    .remove-all span:after {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        margin: auto;
-        content: " ";
-        height: 14px;
-        width: 2px;
-        background-color: #dc3545;
-    }
-
-    .remove-all span:before {
-        transform: rotate(45deg);
-    }
-
-    .remove-all span:after {
-        transform: rotate(-45deg);
     }
 
     .reset-all {

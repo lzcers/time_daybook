@@ -10,3 +10,19 @@ export function millisecondsToHHMMSS(milliseconds: number): string {
 
     return `${pad(hours)}:${pad(remainingMinutes)}:${pad(remainingSeconds)}`;
 }
+
+export function convertMillisecondsToDaysHours(milliseconds: number): string {
+    const millisecondsPerSecond = 1000;
+    const secondsPerHour = 3600;
+    const hoursPerDay = 24;
+
+    const totalHours = milliseconds / (millisecondsPerSecond * secondsPerHour);
+
+    const days = Math.floor(totalHours / hoursPerDay);
+
+    const remainingHours = (totalHours % hoursPerDay).toFixed(1);
+
+    const result = `${days} days ${remainingHours} hours`;
+
+    return result;
+}

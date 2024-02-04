@@ -78,7 +78,7 @@ pub fn get_task_event_list(state: tauri::State<AppState>, id: u64) -> Vec<Event>
 
 #[tauri::command]
 pub fn get_task_list(state: tauri::State<AppState>) -> Vec<Task> {
-    if let Ok(mut t) = state.time_friend.lock() {
+    if let Ok(t) = state.time_friend.lock() {
         t.get_all_task().iter().cloned().collect::<Vec<Task>>()
     } else {
         Vec::new()

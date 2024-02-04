@@ -4,6 +4,7 @@
 use std::sync::Mutex;
 mod clocker;
 mod commands;
+mod persistent;
 mod project;
 mod task;
 mod time_friend;
@@ -11,15 +12,33 @@ mod timeline;
 mod utils;
 
 use commands::*;
+use log::info;
+use tauri::Manager;
 use time_friend::TimeFriend;
+
 struct AppState {
     time_friend: Mutex<TimeFriend>,
 }
 
 fn main() {
+    // 开启日志
+    env_logger::init();
+
     tauri::Builder::default()
-        .manage(AppState {
-            time_friend: Mutex::new(TimeFriend::new()),
+        .setup(|app| {
+            let local_app_data_dir = app
+                .handle()
+                .path_resolver()
+                .app_data_dir()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+            info!("get local app data: {:?}", &local_app_data_dir);
+            app.manage(AppState {
+                time_friend: Mutex::new(TimeFriend::new(local_app_data_dir)),
+            });
+            Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             new_task,

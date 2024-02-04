@@ -11,7 +11,7 @@ interface TaskProps {
     elapsed: number;
     updateList: () => void;
 }
-export function Task(props: TaskProps) {
+export default function Task(props: TaskProps) {
     const { id, name, elapsed, updateList } = props;
     const { currentClock, isRunning, deleteTask, startTask, pauseTask, resetTask } = useTask(id, elapsed, updateList);
     return (
