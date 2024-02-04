@@ -136,10 +136,12 @@ impl TaskList {
         self.sync_to_disk().expect("sync taskList to disk faild");
     }
 
-    pub fn update_task(&mut self, new_task: Task) {
-        if let Some(t) = self.list.iter_mut().find(|task| task.id == new_task.id) {
-            t.name = new_task.name;
-            t.status = new_task.status;
+    pub fn update_task(&mut self, id: u32, new_name: &str, new_status: Option<TaskStatus>) {
+        if let Some(t) = self.list.iter_mut().find(|task| task.id == id) {
+            t.name = new_name.to_owned();
+            if new_status.is_some() {
+                t.status = new_status.unwrap();
+            }
         };
         self.sync_to_disk().expect("sync taskList to disk faild");
     }

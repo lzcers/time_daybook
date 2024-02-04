@@ -51,6 +51,9 @@ impl TimeFriend {
         self.time_line.delete_event_by_task_id(id);
     }
 
+    pub fn update_task(&mut self, id: u32, name: &str, status: Option<TaskStatus>) {
+        self.task_list.update_task(id, name, status);
+    }
     pub fn delete_all_task(&mut self) {
         self.stop_running_clocker();
         let mut ids: Vec<u32> = vec![];

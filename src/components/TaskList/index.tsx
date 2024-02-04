@@ -8,18 +8,19 @@ import "./style.css";
 import { convertMillisecondsToDaysHours } from "@/context/utils";
 
 export default function TaskList() {
-    const { taskList, updateList, createTask, resetAllTask, deleteAllTask } = useList();
-    const [showCreateForm, setShowCreateForm] = useState(false);
+    const { taskList, updateList, createTask, updateTask, resetAllTask, deleteAllTask } = useList();
+    const [showTaskForm, setShowTaskForm] = useState(false);
     const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
     const [showResetAllDialog, setShowResetAllDialog] = useState(false);
-
-    const CreateForm = () => {
-        const [taskName, setTaskName] = useState("");
+    const [isEdit, setIsEdit] = useState<{ id: number; name: string } | null>(null);
+    const TaskForm = (p: { isEdit: { id: number; name: string } | null }) => {
+        const { isEdit } = p;
+        const [taskName, setTaskName] = useState(isEdit?.name ?? "");
         return (
             <div className="form">
                 <div>
                     <label>Task name</label>
-                    <input type="text" onChange={v => setTaskName(v.target.value)} className="text" required />
+                    <input type="text" onChange={v => setTaskName(v.target.value)} defaultValue={isEdit?.name} className="text" required />
                 </div>
                 {/* <div>
                     <label>Project name</label>
@@ -30,8 +31,16 @@ export default function TaskList() {
                         type="button"
                         value="Save"
                         onClick={() => {
-                            createTask(taskName);
-                            setShowCreateForm(false);
+                            if (isEdit) {
+                                updateTask(isEdit.id, taskName).then(() => {
+                                    setIsEdit(null);
+                                    setShowTaskForm(false);
+                                    updateList();
+                                });
+                            } else {
+                                createTask(taskName);
+                                setShowTaskForm(false);
+                            }
                         }}
                     />
                     <input
@@ -39,7 +48,7 @@ export default function TaskList() {
                         className="cancel"
                         value="Cancel"
                         onClick={() => {
-                            setShowCreateForm(false);
+                            setShowTaskForm(false);
                         }}
                     />
                 </div>
@@ -89,7 +98,7 @@ export default function TaskList() {
     return (
         <div className="task-list">
             <div className="task-top-bar">
-                <a className="create button" onClick={() => setShowCreateForm(v => !v)}>
+                <a className="create button" onClick={() => setShowTaskForm(v => !v)}>
                     <span>
                         <img src={plusIcon} />
                         New
@@ -109,14 +118,24 @@ export default function TaskList() {
                 </a>
             </div>
             <div className="content">
-                <div className="form-list">
-                    {taskList.map(task => {
-                        return <Task key={task.id} updateList={updateList} {...task} />;
-                    })}
-                </div>
-                {showCreateForm && <CreateForm />}
+                {showTaskForm && <TaskForm isEdit={isEdit} />}
                 {showDeleteAllDialog && <DeleteAllDialog />}
                 {showResetAllDialog && <ResetAllDialog />}
+                <div className="form-list">
+                    {taskList.map(task => {
+                        return (
+                            <Task
+                                key={task.id}
+                                updateList={updateList}
+                                updateTask={() => {
+                                    setIsEdit({ id: task.id, name: task.name });
+                                    setShowTaskForm(true);
+                                }}
+                                {...task}
+                            />
+                        );
+                    })}
+                </div>
             </div>
             <div className="footer">
                 <span className="version">Time Tracker V0.1</span>

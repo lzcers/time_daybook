@@ -10,9 +10,10 @@ interface TaskProps {
     end_time: number | null;
     elapsed: number;
     updateList: () => void;
+    updateTask: () => void;
 }
 export default function Task(props: TaskProps) {
-    const { id, name, elapsed, updateList } = props;
+    const { id, name, elapsed, updateList, updateTask } = props;
     const { currentClock, isRunning, deleteTask, startTask, pauseTask, resetTask } = useTask(id, elapsed, updateList);
     return (
         <div className={`item ${isRunning ? "running" : ""}`.trim()}>
@@ -23,7 +24,9 @@ export default function Task(props: TaskProps) {
                     <small></small>
                 </label>
                 <div className="item-btn">
-                    <a className="update">Edit |</a>
+                    <a className="update" onClick={updateTask}>
+                        Edit |
+                    </a>
                     <a className="reset" onClick={resetTask}>
                         Reset |
                     </a>

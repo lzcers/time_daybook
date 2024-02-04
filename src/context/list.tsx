@@ -23,6 +23,10 @@ export const useList = () => {
         await updateList();
     };
 
+    const updateTask = async (id: number, name: string) => {
+        await invoke("update_task", { id, name });
+        await updateList();
+    };
     const resetAllTask = async () => {
         await invoke("reset_all_task");
         await updateList();
@@ -39,6 +43,7 @@ export const useList = () => {
 
     return {
         taskList,
+        updateTask,
         createTask,
         updateList,
         resetAllTask,

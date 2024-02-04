@@ -67,13 +67,18 @@ pub fn delete_all_task(state: tauri::State<AppState>) -> bool {
 }
 
 #[tauri::command]
-pub fn update_task(state: tauri::State<AppState>, id: u64, name: &str, project_name: &str) -> bool {
-    panic!("no impl!")
+pub fn update_task(state: tauri::State<AppState>, id: u32, name: &str) -> bool {
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.update_task(id, name, None);
+        true
+    } else {
+        false
+    }
 }
 
 #[tauri::command]
 pub fn get_task_event_list(state: tauri::State<AppState>, id: u64) -> Vec<Event> {
-    panic!("no impl!");
+    todo!("");
 }
 
 #[tauri::command]
