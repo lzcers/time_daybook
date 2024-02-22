@@ -3,12 +3,34 @@
     line-height: 1.5;
     font-weight: 400;
 
+    overscroll-behavior-y: none;
     color-scheme: light;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* 非前缀版本, 应该是最后一个 */
+}
+/* latin-ext */
+@font-face {
+    font-family: "Lato";
+    font-style: normal;
+    font-weight: 100;
+    src: url(./assets/fonts/nixie.woff2) format("woff2");
+    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+    font-family: "Lato";
+    font-style: normal;
+    font-weight: 100;
+    src: url(./assets/fonts/nixie.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122,
+        U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 body {
@@ -49,5 +71,20 @@ h1 {
     }
     a:hover {
         color: #747bff;
+    }
+}
+
+.show-times {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 5px 0;
+    .count-time-btn,
+    .today-time-btn {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
     }
 }

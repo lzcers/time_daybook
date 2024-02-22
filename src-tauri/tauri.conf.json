@@ -10,8 +10,15 @@
     "version": "0.1.0"
   },
   "tauri": {
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    },
     "allowlist": {
       "all": false,
+      "dialog": {
+        "all": true
+      },
       "fs": {
         "all": true,
         "scope": {
@@ -62,12 +69,14 @@
     },
     "windows": [
       {
-        "title": "time-tracker",
+        "title": "akashic",
         "fullscreen": false,
         "height": 600,
         "width": 400,
         "resizable": false,
-        "titleBarStyle": "Transparent"
+        "hiddenTitle": true,
+        "minimizable": false,
+        "titleBarStyle": "Overlay"
       }
     ]
   }

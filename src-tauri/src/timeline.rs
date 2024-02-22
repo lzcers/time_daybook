@@ -1,14 +1,13 @@
 use crate::persistent::{CsvStorage, Persistent};
 use log::info;
 use serde::{Deserialize, Serialize};
-use tauri::api::path;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Event {
-    id: u32,
-    task_id: u32,
-    start_time: u128,
-    end_time: u128,
+    pub id: u32,
+    pub task_id: u32,
+    pub start_time: u128,
+    pub end_time: u128,
 }
 
 impl Event {
@@ -19,6 +18,9 @@ impl Event {
             start_time,
             end_time,
         }
+    }
+    pub fn get_elapsed(&self) -> u128 {
+        self.end_time - self.start_time
     }
 }
 
@@ -45,7 +47,7 @@ impl TimeLine {
     pub fn new(data_dir: String) -> Self {
         if let Ok(mut list) = Self::sync_to_ram(data_dir.as_str()) {
             list.sort_by(|a, b| a.id.cmp(&b.id));
-            let current_event_index = if let Some(e) = list.last() { e.id } else { 0 };
+            let current_event_index = if let Some(e) = list.last() { e.id } else { 0 } + 1;
             TimeLine {
                 list,
                 current_event_index,
@@ -74,8 +76,24 @@ impl TimeLine {
         &self.list
     }
 
+    pub fn get_event_by_task_id(&self, id: u32) -> Vec<&Event> {
+        self.get_all_event()
+            .iter()
+            .filter(|e| e.task_id == id)
+            .collect()
+    }
+
+    pub fn get_event(&mut self, id: u32) -> Option<&Event> {
+        self.list.iter().find(|e| e.id == id)
+    }
+
     pub fn add_event(&mut self, e: Event) {
         self.list.push(e);
+        self.sync_to_disk().expect("sync timeline to disk faild");
+    }
+
+    pub fn delete_event(&mut self, id: u32) {
+        self.list.retain(|e| e.id != id);
         self.sync_to_disk().expect("sync timeline to disk faild");
     }
 

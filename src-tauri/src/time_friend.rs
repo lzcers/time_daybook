@@ -1,3 +1,5 @@
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use crate::{
     clocker::Clocker,
     project::ProjectList,
@@ -43,6 +45,11 @@ impl TimeFriend {
     }
 
     pub fn delete_task(&mut self, id: u32) {
+        if let Some((rid, _)) = self.running_clocker {
+            if id == rid {
+                self.stop_running_clocker();
+            }
+        }
         // 从任务列表中删除
         self.task_list.delete_task(id);
         // 从项目中清除
@@ -54,6 +61,16 @@ impl TimeFriend {
     pub fn update_task(&mut self, id: u32, name: &str, status: Option<TaskStatus>) {
         self.task_list.update_task(id, name, status);
     }
+
+    pub fn done_task(&mut self, id: u32) {
+        self.pause_task(id);
+        self.task_list.done_task(id);
+    }
+
+    pub fn processing_task(&mut self, id: u32) {
+        self.task_list.processing_task(id);
+    }
+
     pub fn delete_all_task(&mut self) {
         self.stop_running_clocker();
         let mut ids: Vec<u32> = vec![];
@@ -70,7 +87,13 @@ impl TimeFriend {
     }
 
     pub fn start_task(&mut self, task_id: u32) {
-        self.stop_running_clocker();
+        if let Some((rid, _)) = self.running_clocker {
+            if rid != task_id {
+                self.stop_running_clocker();
+            } else {
+                return;
+            }
+        }
         let mut clocker = Clocker::new();
         clocker.start();
         self.task_list.start_task(task_id);
@@ -89,7 +112,7 @@ impl TimeFriend {
                 .expect("read the clocker end_time failed");
             if end_time.is_some() {
                 self.task_list
-                    .add_task_elapsed(task_id, *clocker.elapsed.read().unwrap());
+                    .add_task_elapsed(task_id, (*end_time).unwrap() - clocker.start_time);
                 self.time_line.add_event(Event::new(
                     self.time_line.get_index(),
                     task_id,
@@ -117,7 +140,18 @@ impl TimeFriend {
         self.task_list.reset_task_elapsed(task_id);
         self.time_line.delete_event_by_task_id(task_id);
     }
+    pub fn add_event_by_datetime(&mut self, task_id: u32, start_time: u128, end_time: u128) {
+        self.task_list
+            .add_task_elapsed(task_id, end_time - start_time);
 
+        self.time_line.add_event(Event::new(
+            self.time_line.get_index(),
+            task_id,
+            start_time,
+            end_time,
+        ));
+        self.time_line.update_index();
+    }
     pub fn reset_all_task(&mut self) {
         self.stop_running_clocker();
         let task_ids = self
@@ -154,5 +188,63 @@ impl TimeFriend {
         } else {
             None
         }
+    }
+
+    pub fn get_task_event_list(&self, task_id: u32) -> Vec<&Event> {
+        self.time_line.get_event_by_task_id(task_id)
+    }
+
+    pub fn delete_event(&mut self, id: u32) {
+        if let Some(evt) = self.time_line.get_event(id) {
+            self.task_list
+                .sub_task_elapsed(evt.task_id, evt.end_time - evt.start_time);
+            self.time_line.delete_event(id);
+        }
+    }
+
+    pub fn get_today_elapsed(&self) -> u128 {
+        let all_event_elapsed = self
+            .time_line
+            .get_all_event()
+            .iter()
+            .filter(|e| {
+                // 当前时间
+                let timestamp = e.start_time;
+                let now = SystemTime::now();
+
+                // 获取今天的日期部分
+                let since_the_epoch = now.duration_since(UNIX_EPOCH).expect("Time went backwards");
+                let current_day_seconds =
+                    since_the_epoch.as_secs() - (since_the_epoch.as_secs() % 86400);
+                let start_of_today = UNIX_EPOCH + Duration::from_secs(current_day_seconds);
+                let end_of_today = start_of_today + Duration::from_secs(86400 - 1);
+
+                // 将 Unix 毫秒时间戳转换为 SystemTime
+                let datetime = UNIX_EPOCH + Duration::from_millis(timestamp as u64);
+
+                // 判断是否是今天
+                datetime >= start_of_today && datetime <= end_of_today
+            })
+            .fold(0, |acc, cur| acc + cur.get_elapsed());
+        let mut current_elapsed: u128 = 0;
+        if let Some((run_id, _)) = &self.running_clocker {
+            current_elapsed = self.get_clocker_elapsed(*run_id).unwrap_or(0);
+        }
+
+        all_event_elapsed + current_elapsed
+    }
+
+    pub fn get_all_elapsed(&self) -> u128 {
+        let all_event_elapsed = self
+            .time_line
+            .get_all_event()
+            .iter()
+            .fold(0, |acc, cur| acc + cur.get_elapsed());
+        let mut current_elapsed: u128 = 0;
+        if let Some((run_id, _)) = &self.running_clocker {
+            current_elapsed = self.get_clocker_elapsed(*run_id).unwrap_or(0);
+        }
+
+        all_event_elapsed + current_elapsed
     }
 }

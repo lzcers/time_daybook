@@ -42,7 +42,9 @@ impl Task {
     pub fn add_elapsed(&mut self, elapsed: u128) {
         self.elapsed += elapsed;
     }
-
+    pub fn sub_elapsed(&mut self, elapsed: u128) {
+        self.elapsed -= elapsed;
+    }
     pub fn reset_elapsed(&mut self) {
         self.elapsed = 0;
     }
@@ -50,6 +52,11 @@ impl Task {
     pub fn done(&mut self) {
         self.end_time = Some(get_current_time());
         self.status = TaskStatus::Done;
+    }
+
+    pub fn processing(&mut self) {
+        self.end_time = None;
+        self.status = TaskStatus::Processing;
     }
 }
 
@@ -75,7 +82,7 @@ impl TaskList {
     pub fn new(data_dir: String) -> Self {
         if let Ok(mut list) = Self::sync_to_ram(data_dir.as_str()) {
             list.sort_by(|a, b| a.id.cmp(&b.id));
-            let current_task_index = if let Some(e) = list.last() { e.id } else { 0 };
+            let current_task_index = if let Some(e) = list.last() { e.id } else { 0 } + 1;
             TaskList {
                 list,
                 current_task_index,
@@ -126,6 +133,13 @@ impl TaskList {
         }
     }
 
+    pub fn sub_task_elapsed(&mut self, id: u32, elapsed: u128) {
+        if let Some(task) = self.list.iter_mut().find(|t| t.id == id) {
+            task.sub_elapsed(elapsed);
+            self.sync_to_disk().expect("sync taskList to disk faild");
+        }
+    }
+
     pub fn add_task(&mut self, task: Task) {
         self.list.push(task);
         self.sync_to_disk().expect("sync taskList to disk faild");
@@ -133,6 +147,20 @@ impl TaskList {
 
     pub fn delete_task(&mut self, id: u32) {
         self.list.retain(|task| task.id != id);
+        self.sync_to_disk().expect("sync taskList to disk faild");
+    }
+
+    pub fn done_task(&mut self, id: u32) {
+        if let Some(t) = self.list.iter_mut().find(|task| task.id == id) {
+            t.done();
+        };
+        self.sync_to_disk().expect("sync taskList to disk faild");
+    }
+
+    pub fn processing_task(&mut self, id: u32) {
+        if let Some(t) = self.list.iter_mut().find(|task| task.id == id) {
+            t.processing();
+        };
         self.sync_to_disk().expect("sync taskList to disk faild");
     }
 

@@ -1,9 +1,35 @@
 import { invoke } from "@tauri-apps/api";
 import { useEffect, useLayoutEffect, useState } from "react";
 
-export const useTask = (id: number, initEpalsed: number, updateList: Function) => {
+interface Event {
+    id: number;
+    task_id: number;
+    start_time: number;
+    end_time: number;
+}
+
+export const useTask = (id: number, name: string, initEpalsed: number, updateList: Function) => {
     const [currentClock, setCurrentClock] = useState(initEpalsed);
     const [isRunning, setIsRunning] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
+    const [taskName, setTaskName] = useState(name ?? "");
+    const [eventList, setEventList] = useState<Event[]>([]);
+    const [showDelConfirm, setShowDelConfirm] = useState(false);
+    const [showAddEvent, setShowAddEvent] = useState(false);
+    const [eventDateTime, setEventDateTime] = useState("");
+    const [eventSpendTime, setEventSpendTime] = useState(0);
+
+    const addEvent = async () => {
+        if (eventDateTime === "") return;
+        const startTime = new Date(eventDateTime).getTime();
+        const endTime = startTime + eventSpendTime * 60 * 60 * 1000;
+        console.log(startTime, endTime);
+        await invoke<boolean>("add_event_by_datetime", { taskId: id, startTime, endTime }).then(_ => {
+            getTaskEventList();
+            updateList();
+            setShowAddEvent(false);
+        });
+    };
 
     const deleteTask = async () => {
         await invoke("delete_task", { id });
@@ -23,6 +49,7 @@ export const useTask = (id: number, initEpalsed: number, updateList: Function) =
         await invoke("pause_task", { id });
         setIsRunning(false);
         updateList();
+        getTaskEventList();
     };
 
     const resetTask = async () => {
@@ -31,15 +58,38 @@ export const useTask = (id: number, initEpalsed: number, updateList: Function) =
         await invoke("reset_task", { id });
     };
 
+    const doneTask = async () => {
+        await invoke("done_task", { id });
+        updateList();
+    };
+    const processingTask = async () => {
+        await invoke("processing_task", { id });
+        updateList();
+    };
+
+    const getTaskEventList = async () => {
+        setEventList(await invoke<Event[]>("get_task_event_list", { id }));
+    };
+
+    const deleteEventById = async (id: number) => {
+        await invoke("delete_event", { id });
+        getTaskEventList();
+        updateList();
+    };
+
     useLayoutEffect(() => {
-        if (!isRunning) return;
-        let didaFlag: boolean = isRunning;
+        let didaFlag: boolean = true;
         const dida = () => {
             requestAnimationFrame(() => {
                 if (!didaFlag) return;
                 getTaskElapsed().then(elapsed => {
-                    if (elapsed !== null) setCurrentClock(elapsed);
-                    else pauseTask();
+                    if (elapsed !== null) {
+                        setCurrentClock(elapsed);
+                        if (isRunning === false) setIsRunning(true);
+                    } else {
+                        pauseTask();
+                        didaFlag = false;
+                    }
                     dida();
                 });
             });
@@ -55,18 +105,32 @@ export const useTask = (id: number, initEpalsed: number, updateList: Function) =
     }, [initEpalsed]);
 
     useEffect(() => {
-        return () => {
-            pauseTask();
-        };
+        getTaskEventList();
     }, []);
 
     return {
         currentClock,
         isRunning,
+        isEditable,
+        taskName,
+        eventList,
+        showDelConfirm,
+        showAddEvent,
+        addEvent,
+        setEventSpendTime,
+        setEventDateTime,
+        setShowAddEvent,
+        setShowDelConfirm,
+        deleteEventById,
+        getTaskEventList,
+        setTaskName,
+        setIsEditable,
         resetTask,
         deleteTask,
         startTask,
         pauseTask,
+        doneTask,
+        processingTask,
         getTaskElapsed,
     };
 };

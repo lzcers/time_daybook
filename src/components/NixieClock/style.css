@@ -1,0 +1,45 @@
+.clock {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 75px;
+    width: 400px;
+    section {
+        height: 100%;
+    }
+    .ones,
+    .tens {
+        display: inline-block;
+        position: relative;
+        width: 45px;
+        height: 100%;
+        cursor: pointer;
+        p {
+            font-family: "Lato", sans-serif;
+            font-size: 75px;
+            line-height: 75px;
+            /* 不亮颜色 */
+            color: rgba(50, 50, 50, 0.1);
+            position: absolute;
+            text-align: center;
+            transition: 0.3s ease color, 0.3s ease text-shadow;
+        }
+        p.active {
+            z-index: 999;
+            color: #ff6600;
+            text-shadow: 0 0 5px #ff6600, 0 0 10px #ff6600, 0 0 20px #ff6600, 0 0 30px #ff3900, 0 0 40px #ff3900, 0 0 50px #ff3900, 0 0 60px #ff3900,
+                0 0 70px #ff3900;
+        }
+    }
+    /* 亮灯部分颜色 */
+    .separator {
+        font-size: 75px;
+        line-height: 75px;
+        font-family: "Lato", sans-serif;
+        position: relative;
+        color: #ff6600;
+        text-shadow: 0 0 5px #ff6600;
+    }
+}

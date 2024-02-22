@@ -11,6 +11,12 @@ export function millisecondsToHHMMSS(milliseconds: number): string {
     return `${pad(hours)}:${pad(remainingMinutes)}:${pad(remainingSeconds)}`;
 }
 
+export function unixtimeToHours(milliseconds: number) {
+    const millisecondsPerSecond = 1000;
+    const secondsPerHour = 3600;
+    return (milliseconds / (millisecondsPerSecond * secondsPerHour)).toFixed(2);
+}
+
 export function convertMillisecondsToDaysHours(milliseconds: number): string {
     const millisecondsPerSecond = 1000;
     const secondsPerHour = 3600;

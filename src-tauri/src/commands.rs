@@ -1,5 +1,3 @@
-use core::panic;
-
 use crate::{task::Task, timeline::Event, AppState};
 
 #[tauri::command]
@@ -8,6 +6,43 @@ pub fn new_task(state: tauri::State<AppState>, name: &str, project_id: Option<u3
         Some(time_friend.new_task(name, project_id))
     } else {
         None
+    }
+}
+
+#[tauri::command]
+pub fn add_event_by_datetime(
+    state: tauri::State<AppState>,
+    task_id: u32,
+    start_time: u64,
+    end_time: u64,
+) -> bool {
+    if let Ok(mut time_friend) = state.time_friend.lock() {
+        time_friend.add_event_by_datetime(task_id, start_time as u128, end_time as u128);
+        true
+    } else {
+        false
+    }
+}
+
+#[tauri::command]
+pub fn get_task_event_list(state: tauri::State<AppState>, id: u32) -> Vec<Event> {
+    if let Ok(time_friend) = state.time_friend.lock() {
+        time_friend
+            .get_task_event_list(id)
+            .into_iter()
+            .map(|e| e.clone())
+            .collect()
+    } else {
+        vec![]
+    }
+}
+#[tauri::command]
+pub fn delete_event(state: tauri::State<AppState>, id: u32) -> bool {
+    if let Ok(mut time_friend) = state.time_friend.lock() {
+        time_friend.delete_event(id);
+        true
+    } else {
+        false
     }
 }
 
@@ -47,6 +82,24 @@ pub fn get_task_elapsed(state: tauri::State<AppState>, id: u32) -> Option<u128> 
 }
 
 #[tauri::command]
+pub fn get_all_elapsed(state: tauri::State<AppState>) -> Option<u128> {
+    if let Ok(t) = state.time_friend.lock() {
+        Some(t.get_all_elapsed())
+    } else {
+        None
+    }
+}
+
+#[tauri::command]
+pub fn get_today_elapsed(state: tauri::State<AppState>) -> Option<u128> {
+    if let Ok(t) = state.time_friend.lock() {
+        Some(t.get_today_elapsed())
+    } else {
+        None
+    }
+}
+
+#[tauri::command]
 pub fn delete_task(state: tauri::State<AppState>, id: u32) -> bool {
     if let Ok(mut t) = state.time_friend.lock() {
         t.delete_task(id);
@@ -77,8 +130,23 @@ pub fn update_task(state: tauri::State<AppState>, id: u32, name: &str) -> bool {
 }
 
 #[tauri::command]
-pub fn get_task_event_list(state: tauri::State<AppState>, id: u64) -> Vec<Event> {
-    todo!("");
+pub fn done_task(state: tauri::State<AppState>, id: u32) -> bool {
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.done_task(id);
+        true
+    } else {
+        false
+    }
+}
+
+#[tauri::command]
+pub fn processing_task(state: tauri::State<AppState>, id: u32) -> bool {
+    if let Ok(mut t) = state.time_friend.lock() {
+        t.processing_task(id);
+        true
+    } else {
+        false
+    }
 }
 
 #[tauri::command]

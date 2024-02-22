@@ -13,9 +13,12 @@
 ----------------------------------------------------------------------------- */
 
 .task-top-bar {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
     padding: 0.5rem 0.75rem;
     overflow: auto;
-    background: #f6f6f6;
+    border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     span {
         display: flex;
@@ -26,55 +29,43 @@
         height: 12px;
         margin-right: 3px;
     }
-    .create {
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
-    }
-
-    .export-all {
-        float: left;
-        margin-left: 5px;
-    }
-
-    .remove-all {
-        float: right !important;
-    }
-
-    .reset-all {
-        float: right !important;
-        margin-left: 5px;
-    }
 }
 
 /* buttons
 ----------------------------------------------------------------------------- */
 
-input[type="button"],
-input[type="submit"],
-.task-top-bar a.button {
-    color: #444;
+/* 基本按钮样式 */
+.button {
+    padding: 4px 6px;
+    border: none;
+    background-color: #fff; /* 默认蓝色背景 */
+    color: #000;
+    text-align: center;
     text-decoration: none;
-    display: block;
-    padding: 0 0.25rem;
-    font-weight: bold;
-    line-height: 24px;
-    background-color: #fff;
-    border-radius: 2px;
-    float: left;
-    border: 1px solid #ddd;
-    position: relative;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s; /* 平滑过渡效果 */
     cursor: pointer;
+    border-radius: 5px;
+    outline: none; /* 去掉点击时的轮廓线 */
 }
 
-.task-top-bar a.button:active {
-    top: 1px;
+.active-btn {
+    border: 1px solid #007bff;
 }
-
-input[type="button"]:hover,
-input[type="submit"]:hover,
-.task-top-bar .button:hover {
-    color: #555;
+/* 按钮悬停样式 */
+.button:hover {
+    color: #fff;
+    background-color: #007bff; /* 深蓝色背景 */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* 添加阴影 */
+}
+/* 按钮激活态样式 */
+.button:active {
+    color: #fff;
+    background-color: #0056b3; /* 更深的蓝色背景 */
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2); /* 调整阴影以产生按下的效果 */
+    transform: translateY(2px); /* 模仿按下去的物理效果 */
 }
 
 p.buttons {
@@ -86,15 +77,10 @@ p.buttons {
     float: right !important;
 }
 
-.button-remove {
-    color: #a90329 !important;
-}
-
 /* forms and inputs
 ----------------------------------------------------------------------------- */
 
-input[type="text"],
-textarea {
+.text {
     color: #000;
     border: solid 1px #d6d6be;
     background-color: #fcfff4;
@@ -107,49 +93,46 @@ textarea {
     outline: none;
 }
 
-input[type="text"]:focus,
-textarea:focus {
+text:focus {
     background-color: #fff;
 }
 
 .form {
     overflow-y: auto;
     padding: 0.5rem;
+    div label {
+        font-size: 12px;
+        margin-bottom: 5px;
+        margin-bottom: 5px;
+        display: block;
+    }
 }
 
-.form > div {
-    margin-bottom: 0.5rem;
-}
-
-.form-list label,
-.form label {
+.form-list .title,
+.form .title {
     color: #000;
-    width: 100%;
     display: block;
-    font-weight: bold;
     text-align: left;
     font-size: 14px;
-    margin-bottom: 0.1rem;
 }
 
-.form-list label.title,
-.form label.title {
-    margin-bottom: 0.2rem;
-}
-
-.form-list label small,
-.form label small {
-    font-size: 10px !important;
+.name-input {
+    border: none;
+    height: 100%;
+    outline: none;
+    font-size: inherit;
+    display: inline-block;
+    line-height: inherit;
+    background: transparent;
 }
 
 /* content
 ----------------------------------------------------------------------------- */
 
 .content {
+    height: calc(100vh - 160px);
     overflow: auto;
-    height: calc(100vh - 70px);
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    user-select: text;
 }
 
 /* item
@@ -158,16 +141,158 @@ textarea:focus {
 .form-list {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
     overflow-y: auto;
-    .item-btn a {
-        margin-right: 3px;
-        cursor: pointer;
+}
+
+.delete-confirm {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    /* left: 30%; */
+    background: #fbe0e0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    span {
+        margin-left: 10px;
+    }
+    .delete-confirm-opt {
+        display: flex;
+        align-items: center;
+        img {
+            margin: 0 5px;
+            cursor: pointer;
+        }
     }
 }
 
-.form-list .item-container {
-    padding: 5px;
+.item-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: solid 1px #eee;
+    summary {
+        padding: 5px;
+        list-style: none;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    ::-webkit-details-marker {
+        display: none;
+    }
+    .item-task {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+    .event-list-btn {
+        cursor: pointer;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-around;
+        padding-top: 10px;
+        border-top: solid 1px #eee;
+
+        img {
+            margin: 0 5px;
+        }
+        a {
+            display: flex;
+            align-items: center;
+        }
+    }
+    .event-list {
+        padding-top: 10px;
+        .event {
+            display: flex;
+            flex-flow: row nowrap;
+            font-size: 14px;
+            .evt-no {
+                margin: 0 10px;
+                width: 20px;
+                text-align: end;
+            }
+            .evt-elapsed {
+                text-align: end;
+                width: 55px;
+            }
+            .evt-opt {
+                display: none;
+                flex-flow: row nowrap;
+                align-items: center;
+                margin-left: 10px;
+            }
+            .evt-date-start {
+                text-align: center;
+            }
+
+            .evt-date-end {
+                text-align: center;
+            }
+            .evt-date-start,
+            .evt-date-end {
+                display: inline-block;
+                width: 122px;
+            }
+        }
+        .event:hover {
+            .evt-opt {
+                display: flex;
+                img {
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+    .item-task-info {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+    span.timer {
+        font-size: 16px;
+    }
+
+    a.power {
+        display: block;
+        margin: 0 auto;
+        margin-left: 5px;
+        position: relative;
+        color: #000;
+        border: 0;
+        background: transparent;
+        box-sizing: border-box;
+        width: 16px;
+        height: 16px;
+        border-color: transparent transparent transparent #616162;
+        transition: 100ms all ease;
+        cursor: pointer;
+    }
+
+    a.play:not(.running) {
+        border-style: solid;
+        border-width: 8px 0 8px 12px;
+    }
+    a.running {
+        border-style: double;
+        border-width: 0 0 0 12px;
+    }
+}
+
+.item-container[open] {
+    padding-bottom: 10px;
+}
+.item-container[open] > summary {
+    background-color: #eaffd6;
 }
 
 .form-list .running .item-container {
@@ -182,46 +307,30 @@ textarea:focus {
     overflow: hidden;
 }
 
-.form-list .item:not(:last-child) {
+.add-event-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    line-height: 21px;
     border-bottom: solid 1px #eee;
+    border-top: solid 1px #eee;
+    padding: 5px 0;
+    vertical-align: middle;
+    .add-event-form-btn {
+        cursor: pointer;
+        margin: 0 8px;
+    }
+    .add-event-form-datetime,
+    .add-event-form-hours {
+        display: inline-block;
+        height: 21px;
+        outline: none;
+    }
+    .add-event-form-hours {
+        width: 50px;
+    }
 }
-
-.form-list .item a.power {
-    display: block;
-    position: absolute;
-    right: 0.25rem;
-    margin: 0 auto;
-    top: 50%;
-    color: #000;
-    transform: translateY(-50%);
-    border: 0;
-    background: transparent;
-    box-sizing: border-box;
-    width: 16px;
-    height: 16px;
-    border-color: transparent transparent transparent #616162;
-    transition: 100ms all ease;
-    cursor: pointer;
-}
-
-.form-list .item a.play:not(.running) {
-    border-style: solid;
-    border-width: 8px 0 8px 12px;
-}
-
-.form-list .item a.running {
-    border-style: double;
-    border-width: 0 0 0 12px;
-}
-
-.form-list .item span.timer {
-    position: absolute;
-    right: 2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-}
-
 /* other elements
 ----------------------------------------------------------------------------- */
 
@@ -245,34 +354,4 @@ p.remove-confirm {
 
 p.remove-confirm strong {
     color: #333;
-}
-
-/* footer
------------------------------------------------------------------------------ */
-
-.footer {
-    background: #f6f6f6;
-    color: #bbb;
-    margin: 0;
-    padding: 5px;
-}
-
-.footer a {
-    color: #bbb;
-}
-
-.footer a:hover {
-    color: #333;
-}
-
-.footer span.total-time {
-    float: right;
-}
-
-/* error
------------------------------------------------------------------------------ */
-.form-error {
-    background-color: #f8d7da;
-    margin: 0.5rem 0.75rem;
-    font-size: 0.75rem;
 }
