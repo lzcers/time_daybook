@@ -1,6 +1,8 @@
 import "./style.css";
 import { millisecondsToHHMMSS, unixtimeToHours } from "@/context/utils";
 import { useTask } from "@/context/task";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import removeIcon from "@/assets/icons/remove.svg";
 import subIcon from "@/assets/icons/sub.svg";
 import editIcon from "@/assets/icons/edit.svg";
@@ -9,6 +11,8 @@ import evtIcon from "@/assets/icons/addevt.svg";
 import processingIcon from "@/assets/icons/processing.svg";
 import confirmIcon from "@/assets/icons/confirm.svg";
 import cancelIcon from "@/assets/icons/cancel.svg";
+import { useRef, useState } from "react";
+
 interface TaskProps {
     id: number;
     name: string;
@@ -44,54 +48,105 @@ export default function Task(props: TaskProps) {
         setEventDateTime,
     } = useTask(id, name, elapsed, updateList);
 
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, active } = useSortable({ id: props.id });
+    const [open, setOpen] = useState(false);
+    const detailsRef = useRef<null | HTMLDetailsElement>(null);
+    const style = { transform: CSS.Transform.toString(transform), transition };
+
+    // useEffect(() => {
+    //     if (!detailsRef.current) return;
+    //     if (transform && transform.y !== 0) {
+    //         detailsRef.current.open = false;
+    //         setOpen(false);
+    //     }
+    //     console.log(rect.current);
+    // }, [transform, rect]);
+
     return (
-        <div className={`item ${isRunning ? "running" : ""}`.trim()}>
-            <details className="item-container">
-                <summary>
+        <div className={`item ${isRunning ? "running" : ""}`.trim()} style={style}>
+            <details ref={detailsRef} className="item-container" onToggle={e => (e.currentTarget.open = open)}>
+                <summary
+                    ref={setNodeRef}
+                    {...attributes}
+                    onPointerUp={_ => {
+                        if (active?.rect.current) {
+                            const { initial, translated } = active.rect.current;
+                            if (detailsRef.current && initial && translated && initial.top === translated.top) {
+                                detailsRef.current.open = !open;
+                                setOpen(!open);
+                            }
+                        } else {
+                            if (detailsRef.current) {
+                                detailsRef.current.open = !open;
+                                setOpen(!open);
+                            }
+                        }
+                    }}
+                >
                     {showDelConfirm && (
                         <div className="delete-confirm">
                             <span>你确定删除任务吗？</span>
                             <div className="delete-confirm-opt">
-                                <img src={confirmIcon} onClick={deleteTask} /> <img src={cancelIcon} onClick={() => setShowDelConfirm(false)} />
+                                <img
+                                    src={confirmIcon}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        deleteTask();
+                                    }}
+                                />
+                                <img
+                                    src={cancelIcon}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        setShowDelConfirm(false);
+                                    }}
+                                />
                             </div>
                         </div>
                     )}
-                    <div className="item-task">
-                        <div className="title">
-                            {isEditable ? (
-                                <input defaultValue={name} autoFocus className={"name-input"} onChange={v => setTaskName(v.target.value)} />
-                            ) : (
-                                name
+                    <div className="item-task_title">
+                        <div className="item-task" ref={setActivatorNodeRef} {...listeners}>
+                            <div className="title">
+                                {isEditable ? (
+                                    <input defaultValue={name} autoFocus className={"name-input"} onChange={v => setTaskName(v.target.value)} />
+                                ) : (
+                                    name
+                                )}
+                            </div>
+                        </div>
+                        <div className="item-task-info">
+                            <span className="timer">{millisecondsToHHMMSS(currentClock)}</span>
+                            {status !== "Done" && (
+                                <a
+                                    className={`power ${isRunning ? "running" : "play"}`}
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        !isRunning ? startTask() : pauseTask();
+                                    }}
+                                ></a>
                             )}
                         </div>
-                    </div>
-                    <div className="item-task-info">
-                        <span className="timer">{millisecondsToHHMMSS(currentClock)}</span>
-                        {status !== "Done" && (
-                            <a
-                                className={`power ${isRunning ? "running" : "play"}`}
-                                onClick={e => {
-                                    e.preventDefault();
-                                    !isRunning ? startTask() : pauseTask();
-                                }}
-                            ></a>
-                        )}
                     </div>
                 </summary>
                 <div>
                     <div className="event-list-btn">
-                    {!isEditable && <a
-                            onClick={e => {
-                                e.preventDefault();
-                                setShowAddEvent(v => !v);
-                            }}
-                        >
-                            <img src={evtIcon} />
-                            添加事件
-                        </a>}
+                        {!isEditable && (
+                            <a
+                                onClick={e => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setShowAddEvent(v => !v);
+                                }}
+                            >
+                                <img src={evtIcon} />
+                                添加事件
+                            </a>
+                        )}
                         <a
                             onClick={e => {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 if (isEditable) {
                                     updateTask(taskName);
                                     setIsEditable(false);
@@ -108,6 +163,7 @@ export default function Task(props: TaskProps) {
                                 className="done"
                                 onClick={e => {
                                     e.preventDefault();
+                                    e.stopPropagation();
                                     if (status !== "Done") doneTask();
                                     else processingTask();
                                 }}
@@ -119,6 +175,7 @@ export default function Task(props: TaskProps) {
                             className="remove"
                             onClick={e => {
                                 e.preventDefault();
+                                e.stopPropagation();
                                 isEditable ? setIsEditable(false) : setShowDelConfirm(true);
                             }}
                         >

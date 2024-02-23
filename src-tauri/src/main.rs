@@ -87,7 +87,8 @@ fn main() {
             get_today_elapsed,
             get_all_elapsed,
             delete_event,
-            add_event_by_datetime
+            add_event_by_datetime,
+            swap_task_by_index
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

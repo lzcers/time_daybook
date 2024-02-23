@@ -10,6 +10,20 @@ pub fn new_task(state: tauri::State<AppState>, name: &str, project_id: Option<u3
 }
 
 #[tauri::command]
+pub fn swap_task_by_index(
+    state: tauri::State<AppState>,
+    old_index: usize,
+    new_index: usize,
+) -> bool {
+    if let Ok(mut time_friend) = state.time_friend.lock() {
+        time_friend.swap_task_by_index(old_index, new_index);
+        true
+    } else {
+        false
+    }
+}
+
+#[tauri::command]
 pub fn add_event_by_datetime(
     state: tauri::State<AppState>,
     task_id: u32,

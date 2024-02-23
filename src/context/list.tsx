@@ -1,5 +1,7 @@
-import { invoke } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
+import { DragEndEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import { invoke } from "@tauri-apps/api";
 
 interface Task {
     id: number;
@@ -37,6 +39,19 @@ export const useList = () => {
         await updateList();
     };
 
+    const handleTaskDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setTaskList(items => {
+                const oldIndex = items.findIndex(i => i.id === active.id);
+                const newIndex = items.findIndex(i => i.id === over.id);
+                invoke("swap_task_by_index", { oldIndex, newIndex });
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    };
+
     useEffect(() => {
         updateList();
     }, []);
@@ -48,5 +63,6 @@ export const useList = () => {
         updateList,
         resetAllTask,
         deleteAllTask,
+        handleTaskDragEnd,
     };
 };

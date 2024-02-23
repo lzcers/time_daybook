@@ -81,8 +81,8 @@ impl Persistent<Vec<Task>> for TaskList {
 impl TaskList {
     pub fn new(data_dir: String) -> Self {
         if let Ok(mut list) = Self::sync_to_ram(data_dir.as_str()) {
-            list.sort_by(|a, b| a.id.cmp(&b.id));
-            let current_task_index = if let Some(e) = list.last() { e.id } else { 0 } + 1;
+            let max_task = list.iter().max_by(|x, y| x.id.cmp(&y.id));
+            let current_task_index = if let Some(e) = max_task { e.id } else { 0 } + 1;
             TaskList {
                 list,
                 current_task_index,
@@ -113,12 +113,18 @@ impl TaskList {
         self.list.iter().find(|t| t.id == id)
     }
 
+    pub fn swap_task_index(&mut self, old_index: usize, new_index: usize) {
+        self.list.swap(old_index, new_index);
+        self.sync_to_disk().expect("sync taskList to disk faild");
+    }
+
     pub fn start_task(&mut self, id: u32) {
         if let Some(task) = self.list.iter_mut().find(|t| t.id == id) {
             task.start();
             self.sync_to_disk().expect("sync taskList to disk faild");
         }
     }
+
     pub fn reset_task_elapsed(&mut self, id: u32) {
         if let Some(task) = self.list.iter_mut().find(|t| t.id == id) {
             task.reset_elapsed();

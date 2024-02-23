@@ -62,6 +62,10 @@ impl TimeFriend {
         self.task_list.update_task(id, name, status);
     }
 
+    pub fn swap_task_by_index(&mut self, old_index: usize, new_index: usize) {
+        self.task_list.swap_task_index(old_index, new_index);
+    }
+
     pub fn done_task(&mut self, id: u32) {
         self.pause_task(id);
         self.task_list.done_task(id);

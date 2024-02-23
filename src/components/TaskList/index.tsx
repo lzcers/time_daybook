@@ -1,4 +1,8 @@
 import { useMemo, useState } from "react";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable } from "@dnd-kit/core";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
+
 import Task from "./task";
 import plusIcon from "@/assets/icons/plus.svg";
 import processingIcon from "@/assets/icons/processing.svg";
@@ -9,12 +13,18 @@ import "./style.css";
 import { useFS } from "@/context/fs";
 
 export default function TaskList() {
-    const { taskList, updateList, createTask, updateTask } = useList();
+    const { taskList, updateList, createTask, updateTask, handleTaskDragEnd } = useList();
     const { exportData } = useFS();
+    const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
     const [showTaskForm, setShowTaskForm] = useState(false);
     const [showDone, setShowDone] = useState<boolean>(false);
     const [taskName, setTaskName] = useState("");
+    const { isOver, setNodeRef } = useDroppable({ id: "droppable" });
+
+    const style = {
+        color: isOver ? "green" : undefined,
+    };
 
     const TaskForm = useMemo(() => {
         if (showTaskForm) {
@@ -91,22 +101,31 @@ export default function TaskList() {
             </div>
             {TaskForm}
             <div className="content">
-                <div className="form-list">
-                    {showList.map(task => {
-                        return (
-                            <Task
-                                key={task.id}
-                                updateList={updateList}
-                                updateTask={(name: string) => {
-                                    updateTask(task.id, name).then(() => {
-                                        updateList();
-                                    });
-                                }}
-                                {...task}
-                            />
-                        );
-                    })}
-                </div>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleTaskDragEnd}
+                    modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                >
+                    <div className="form-list" ref={setNodeRef} style={style}>
+                        <SortableContext items={showList} strategy={verticalListSortingStrategy}>
+                            {showList.map(task => {
+                                return (
+                                    <Task
+                                        key={task.id}
+                                        updateList={updateList}
+                                        updateTask={(name: string) => {
+                                            updateTask(task.id, name).then(() => {
+                                                updateList();
+                                            });
+                                        }}
+                                        {...task}
+                                    />
+                                );
+                            })}
+                        </SortableContext>
+                    </div>
+                </DndContext>
             </div>
         </div>
     );

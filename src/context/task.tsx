@@ -23,7 +23,6 @@ export const useTask = (id: number, name: string, initEpalsed: number, updateLis
         if (eventDateTime === "") return;
         const startTime = new Date(eventDateTime).getTime();
         const endTime = startTime + eventSpendTime * 60 * 60 * 1000;
-        console.log(startTime, endTime);
         await invoke<boolean>("add_event_by_datetime", { taskId: id, startTime, endTime }).then(_ => {
             getTaskEventList();
             updateList();
