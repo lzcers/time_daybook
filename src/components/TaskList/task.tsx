@@ -51,23 +51,12 @@ export default function Task(props: TaskProps) {
     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, active } = useSortable({ id: props.id });
     const [open, setOpen] = useState(false);
     const detailsRef = useRef<null | HTMLDetailsElement>(null);
-    const style = { transform: CSS.Transform.toString(transform), transition };
-
-    // useEffect(() => {
-    //     if (!detailsRef.current) return;
-    //     if (transform && transform.y !== 0) {
-    //         detailsRef.current.open = false;
-    //         setOpen(false);
-    //     }
-    //     console.log(rect.current);
-    // }, [transform, rect]);
+    const style = { transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1, scaleX: 1 }), transition };
 
     return (
-        <div className={`item ${isRunning ? "running" : ""}`.trim()} style={style}>
+        <div className={`item ${isRunning ? "running" : ""}`.trim()} style={style} ref={setNodeRef} {...attributes}>
             <details ref={detailsRef} className="item-container" onToggle={e => (e.currentTarget.open = open)}>
                 <summary
-                    ref={setNodeRef}
-                    {...attributes}
                     onPointerUp={_ => {
                         if (active?.rect.current) {
                             const { initial, translated } = active.rect.current;
