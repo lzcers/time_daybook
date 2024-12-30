@@ -1,16 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use std::sync::Mutex;
-use tauri::{SystemTray, SystemTrayEvent};
+use tauri::tray::TrayIconBuilder;
 
-mod clocker;
 mod commands;
 mod persistent;
 mod project;
 mod task;
+mod time;
 mod time_friend;
 mod timeline;
-mod utils;
 
 use commands::*;
 use log::info;
@@ -25,45 +24,20 @@ fn main() {
     // 开启日志
     env_logger::init();
 
-    let system_tray = SystemTray::new();
     tauri::Builder::default()
-        .system_tray(system_tray)
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::LeftClick {
-                position: p,
-                size: _,
-                ..
-            } => {
-                let window = app.get_window("main").unwrap();
-                window.set_position(p).unwrap();
-                window.show().unwrap();
-                window.set_focus().unwrap();
-            }
-            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "quit" => {
-                    std::process::exit(0);
-                }
-                _ => {}
-            },
-            _ => {}
-        })
-        .on_window_event(|event| match event.event() {
-            tauri::WindowEvent::CloseRequested { api, .. } => {
-                event.window().hide().unwrap();
-                api.prevent_close();
-            }
-            _ => {}
-        })
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let local_app_data_dir = app
-                .handle()
-                .path_resolver()
-                .app_data_dir()
-                .unwrap()
+                .path()
+                .app_local_data_dir()?
                 .to_str()
                 .unwrap()
                 .to_string();
+
             info!("get local app data: {:?}", &local_app_data_dir);
+
+            // let tray = TrayIconBuilder::new().build(app)?;
 
             app.manage(AppState {
                 time_friend: Mutex::new(TimeFriend::new(local_app_data_dir)),

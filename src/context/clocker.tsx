@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core"
 
 export const useClocker = () => {
     const [allElapsed, setAllElapsed] = useState(0);

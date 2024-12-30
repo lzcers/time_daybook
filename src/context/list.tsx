@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core"
+
 
 interface Task {
     id: number;

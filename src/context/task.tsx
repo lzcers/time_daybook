@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core"
 
 interface Event {
     id: number;
